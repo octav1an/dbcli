@@ -66,7 +66,6 @@ var cmdSelect = &cobra.Command{
 func queryBuilder(tableName string, columns string) string {
 	selector := "*"
 	if columns != "" {
-		// TODO: Validate column or multiple columns
 		selector = columns
 	}
 
