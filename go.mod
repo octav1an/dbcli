@@ -1,4 +1,4 @@
-module go-sqlite-cli
+module dbcli
 
 go 1.24.2
 
