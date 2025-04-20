@@ -1,4 +1,4 @@
-package cmd
+package data
 
 import (
 	"database/sql"
@@ -9,13 +9,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var dbPath string
 var tableName string
 var columnName string
 
 func init() {
-	cmdSelect.PersistentFlags().StringVarP(&dbPath, "db", "d", "", "Path to SQLite DB file")
-	cmdSelect.MarkPersistentFlagRequired("db")
 	cmdSelect.PersistentFlags().StringVarP(&tableName, "table", "t", "", "Table name")
 	cmdSelect.MarkPersistentFlagRequired("table")
 	cmdSelect.Flags().StringVarP(&columnName, "column", "c", "",
@@ -25,11 +22,6 @@ Examples:
   --column "file,time"`)
 
 	cmdSelect.PreRunE = func(cmd *cobra.Command, args []string) error {
-		if err := validateDb(dbPath); err != nil {
-			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-			os.Exit(1)
-		}
-
 		if err := validateColumnInput(columnName); err != nil {
 			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 			os.Exit(1)
@@ -37,6 +29,8 @@ Examples:
 
 		return nil
 	}
+
+	CmdData.AddCommand(cmdSelect)
 }
 
 var cmdSelect = &cobra.Command{
