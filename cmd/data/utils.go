@@ -1,16 +1,17 @@
-package cmd
+package data
 
 import (
-"errors"
+	"dbcli/internal/config"
+	"errors"
 	"fmt"
 	"os"
-"regexp"
+	"regexp"
 )
 
 func validateDb(path string) error {
 	info, err := os.Stat(path)
 	if os.IsNotExist(err) {
-		return fmt.Errorf("dabase file does not exist: %s", path)
+		return fmt.Errorf("database file does not exist: %s", path)
 	}
 	if err != nil {
 		return fmt.Errorf("could not access database file: %v", err)
@@ -34,8 +35,30 @@ func validateColumnInput(input string) error {
 }
 
 func vlog(format string, a ...interface{}) {
-	if verbose {
+	if config.Verbose {
 		fmt.Printf(format+"\n", a...)
 	}
 }
 
+// func getColumns(db *sql.DB, tableName string) ([]string, error) {
+// 	rows, err := db.Query(fmt.Sprintf("PRAGMA table_info(%s);", tableName))
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	defer rows.Close()
+
+// 	var columns []string
+// 	for rows.Next() {
+// 		var cid int
+// 		var name, ctype, notnull, pk string
+// 		var dflt_value sql.NullString
+// 		err := rows.Scan(&cid, &name, &ctype, &notnull, &dflt_value, &pk)
+// 		if err != nil {
+// 			return nil, err
+// 		}
+
+// 		columns = append(columns, name)
+// 	}
+
+// 	return columns, nil
+// }

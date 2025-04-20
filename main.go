@@ -1,7 +1,7 @@
 package main
 
 import (
-	"go-sqlite-cli/internal/cmd"
+	"dbcli/cmd"
 
 	_ "github.com/mattn/go-sqlite3"
 )
