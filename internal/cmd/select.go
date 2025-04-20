@@ -4,15 +4,25 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
 
 var dbPath string
+var tableName string
+var columnName string
 
 func init() {
 	cmdSelect.PersistentFlags().StringVarP(&dbPath, "db", "d", "", "Path to SQLite DB file")
 	cmdSelect.MarkPersistentFlagRequired("db")
+	cmdSelect.PersistentFlags().StringVarP(&tableName, "table", "t", "", "Table name")
+	cmdSelect.MarkPersistentFlagRequired("table")
+	cmdSelect.Flags().StringVarP(&columnName, "column", "c", "",
+		`Column name(s) to select (comma-separated for multiple).
+Examples:
+  --column file
+  --column "file,time"`)
 
 	cmdSelect.PreRunE = func(cmd *cobra.Command, args []string) error {
 		if err := validateDb(dbPath); err != nil {
@@ -36,58 +46,73 @@ var cmdSelect = &cobra.Command{
 		}
 		defer db.Close()
 
-		columns, err := getColumns(db, "file_log")
+		if columnName != "" {
+			fmt.Printf("Column Name: %s\n", columnName)
+		}
+
+		query := queryBuilder(tableName, columnName)
+		fmt.Println(query)
+
+		cols, rows, err := getTableData(db, query)
 		if err != nil {
-			fmt.Printf("error %v", err)
+			fmt.Printf("error getting data %v", err)
 		}
-		// for _, column := range columns {
-		// 	fmt.Printf(" %s ", column)
-		// }
 
-		rows, err := db.Query("SELECT * FROM file_log")
-		if err != nil {
-			panic(err)
-		}
-		defer rows.Close()
-
-		values := make([]interface{}, len(columns))
-		for rows.Next() {
-			for i := range values {
-				values[i] = new(interface{})
-			}
-
-			err = rows.Scan(values...)
-			if err != nil {
-				fmt.Printf("error, %v\n", err)
-			}
-
-			for i, column := range columns {
-				fmt.Printf(" %s:%v ", column, *(values[i].(*interface{})))
-			}
-			fmt.Print("\n")
-		}
+		displayTable(cols, rows)
 	},
 }
 
-func getColumns(db *sql.DB, tableName string) ([]string, error) {
-	rows, err := db.Query(fmt.Sprintf("PRAGMA table_info(%s);", tableName))
+func queryBuilder(tableName string, columns string) string {
+	selector := "*"
+	if columns != "" {
+		// TODO: Validate column or multiple columns
+		selector = columns
+	}
+
+	return fmt.Sprintf("SELECT %s FROM %s", selector, tableName)
+}
+
+func getTableData(db *sql.DB, query string) ([]string, [][]string, error) {
+	rows, err := db.Query(query)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 	defer rows.Close()
 
-	var columns []string
-	for rows.Next() {
-		var cid int
-		var name, ctype, notnull, pk string
-		var dflt_value sql.NullString
-		err := rows.Scan(&cid, &name, &ctype, &notnull, &dflt_value, &pk)
-		if err != nil {
-			return nil, err
-		}
-
-		columns = append(columns, name)
+	cols, err := rows.Columns()
+	if err != nil {
+		return nil, nil, err
 	}
 
-	return columns, nil
+	var rowsData [][]string
+	colsCount := len(cols)
+
+	for rows.Next() {
+		values := make([]interface{}, colsCount)
+		for i := range values {
+			values[i] = new(interface{})
+		}
+
+		err := rows.Scan(values...)
+		if err != nil {
+			return nil, nil, fmt.Errorf("error scanning row, %v\n", err)
+		}
+
+		var row []string
+		for _, val := range values {
+			val_s := fmt.Sprintf("%v", *(val.(*interface{})))
+			row = append(row, val_s)
+		}
+		rowsData = append(rowsData, row)
+	}
+	return cols, rowsData, nil
+}
+
+func displayTable(columns []string, rows [][]string) {
+	fmt.Printf("%s", strings.Join(columns, ", "))
+	fmt.Println()
+	for _, row := range rows {
+		fmt.Printf("%s", strings.Join(row, ", "))
+		fmt.Println()
+	}
 }
