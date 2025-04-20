@@ -7,7 +7,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var verbose bool
+
 func init() {
+	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "Verbose logs")
 }
 
 var rootCmd = &cobra.Command{Use: "dbcli"}
