@@ -59,7 +59,7 @@ var cmdSelect = &cobra.Command{
 			fmt.Printf("error getting data %v", err)
 		}
 
-		outputInConsole(cols, rows)
+		outputToConsole(cols, rows)
 	},
 }
 
@@ -108,7 +108,7 @@ func getTableData(db *sql.DB, query string) ([]string, [][]string, error) {
 	return cols, rowsData, nil
 }
 
-func outputInConsole(columns []string, rows [][]string) {
+func outputToConsole(columns []string, rows [][]string) {
 	fmt.Printf("Columns: %s", strings.Join(columns, ", "))
 	fmt.Println()
 	for _, row := range rows {
