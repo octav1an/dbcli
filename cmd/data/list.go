@@ -8,7 +8,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var listTables = &cobra.Command{
+var cmdListTables = &cobra.Command{
 	Use:   "list",
 	Short: "List all the tables names in the db",
 	Run: func(cmd *cobra.Command, args []string) {
@@ -43,5 +43,5 @@ var listTables = &cobra.Command{
 }
 
 func init() {
-	CmdData.AddCommand(listTables)
+	CmdData.AddCommand(cmdListTables)
 }
