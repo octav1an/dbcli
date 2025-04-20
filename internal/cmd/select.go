@@ -30,6 +30,11 @@ Examples:
 			os.Exit(1)
 		}
 
+		if err := validateColumnInput(columnName); err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(1)
+		}
+
 		return nil
 	}
 }
@@ -38,7 +43,7 @@ var cmdSelect = &cobra.Command{
 	Use:   "select",
 	Short: "Query the sql db file",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Select from ", dbPath)
+		vlog("Database: %s", dbPath)
 
 		db, err := sql.Open("sqlite3", dbPath)
 		if err != nil {
@@ -46,19 +51,15 @@ var cmdSelect = &cobra.Command{
 		}
 		defer db.Close()
 
-		if columnName != "" {
-			fmt.Printf("Column Name: %s\n", columnName)
-		}
-
 		query := queryBuilder(tableName, columnName)
-		fmt.Println(query)
+		vlog("Query string: %s", query)
 
 		cols, rows, err := getTableData(db, query)
 		if err != nil {
 			fmt.Printf("error getting data %v", err)
 		}
 
-		displayTable(cols, rows)
+		outputInConsole(cols, rows)
 	},
 }
 
@@ -108,8 +109,8 @@ func getTableData(db *sql.DB, query string) ([]string, [][]string, error) {
 	return cols, rowsData, nil
 }
 
-func displayTable(columns []string, rows [][]string) {
-	fmt.Printf("%s", strings.Join(columns, ", "))
+func outputInConsole(columns []string, rows [][]string) {
+	fmt.Printf("Columns: %s", strings.Join(columns, ", "))
 	fmt.Println()
 	for _, row := range rows {
 		fmt.Printf("%s", strings.Join(row, ", "))
