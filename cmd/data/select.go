@@ -109,6 +109,8 @@ func queryBuilder(tableName string, columns string, start *int, end *int) string
 		return query
 	}
 
+	// TODO: handle case where the start > end
+
 	return query
 }
 
