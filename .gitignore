@@ -6,6 +6,6 @@
 *.dylib
 
 .DS_Store
-data/
 bin/
 .vscode/
+/data/
