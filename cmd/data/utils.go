@@ -1,7 +1,6 @@
 package data
 
 import (
-	"database/sql"
 	"dbcli/internal/config"
 	"errors"
 	"fmt"
@@ -100,46 +99,4 @@ func intAbs(x int) int {
 		return -x
 	}
 	return x
-}
-
-func executeQuery(db *sql.DB, query string) ([]string, [][]string, error) {
-	rows, err := db.Query(query)
-	if err != nil {
-		return nil, nil, err
-	}
-	defer rows.Close()
-
-	cols, err := rows.Columns()
-	if err != nil {
-		return nil, nil, err
-	}
-
-	var rowsData [][]string
-	colsCount := len(cols)
-
-	for rows.Next() {
-		values := make([]interface{}, colsCount)
-		for i := range values {
-			values[i] = new(interface{})
-		}
-
-		err := rows.Scan(values...)
-		if err != nil {
-			return nil, nil, errors.New("error scanning row")
-		}
-
-		var row []string
-		for _, val := range values {
-			val_s := fmt.Sprintf("%v", *(val.(*interface{})))
-			row = append(row, val_s)
-		}
-		rowsData = append(rowsData, row)
-	}
-
-	if err := rows.Err(); err != nil {
-		fmt.Fprintf(os.Stderr, "error while iterating rows: %v\n", err)
-		return nil, nil, err
-	}
-
-	return cols, rowsData, nil
 }

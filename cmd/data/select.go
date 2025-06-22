@@ -66,7 +66,7 @@ var cmdSelect = &cobra.Command{
 		query := queryBuilder(tableName, columnName, start, end)
 		vlog("Query string: %s", query)
 
-		cols, rows, err := executeQuery(db, query)
+		cols, rows, err := runQuery(db, query)
 		if err != nil {
 			fmt.Printf("error getting data %v", err)
 			return

@@ -1,7 +1,6 @@
 package data
 
 import (
-	"database/sql"
 	"fmt"
 	"strings"
 )
@@ -13,11 +12,6 @@ func printQueryRows(columns []string, rows [][]string) {
 	}
 }
 
-func printExecResult(res sql.Result) {
-	affected, err := res.RowsAffected()
-	if err != nil {
-		fmt.Printf("error getting affected rows")
-	}
-
-	fmt.Printf("Rows affected: %d\n", affected)
+func printExecResult(rowsAffected int64) {
+	fmt.Printf("Rows affected: %d\n", rowsAffected)
 }

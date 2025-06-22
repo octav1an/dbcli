@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"strings"
+	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -39,29 +39,9 @@ var cmdSqlSelect = &cobra.Command{
 		vlog(queryString)
 
 		// TODO: Make a backup
-		runSql(db, queryString)
+		if err := runSql(db, queryString); err != nil {
+			fmt.Fprint(os.Stderr, "error: %w", err)
+			os.Exit(1)
+		}
 	},
-}
-
-func runSql(db *sql.DB, sql string) {
-	q := strings.ToLower(strings.TrimSpace(sql))
-	// TODO: a delete query can start with "with"
-	if strings.HasPrefix(q, "select") || strings.HasPrefix(q, "pragma") || strings.HasPrefix(q, "with") {
-		cols, rows, err := executeQuery(db, sql)
-		if err != nil {
-			fmt.Printf("error getting data %v", err)
-			return
-		}
-
-		if cols != nil && rows != nil {
-			printQueryRows(cols, rows)
-		}
-	} else {
-		res, err := db.Exec(sql)
-		if err != nil {
-			fmt.Printf("error executing statement that doesn't return any rows")
-			return
-		}
-		printExecResult(res)
-	}
 }
