@@ -1,6 +1,7 @@
 package data
 
 import (
+	"database/sql"
 	"dbcli/internal/config"
 	"errors"
 	"fmt"
@@ -101,25 +102,44 @@ func intAbs(x int) int {
 	return x
 }
 
-// func getColumns(db *sql.DB, tableName string) ([]string, error) {
-// 	rows, err := db.Query(fmt.Sprintf("PRAGMA table_info(%s);", tableName))
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	defer rows.Close()
+func executeQuery(db *sql.DB, query string) ([]string, [][]string, error) {
+	rows, err := db.Query(query)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer rows.Close()
 
-// 	var columns []string
-// 	for rows.Next() {
-// 		var cid int
-// 		var name, ctype, notnull, pk string
-// 		var dflt_value sql.NullString
-// 		err := rows.Scan(&cid, &name, &ctype, &notnull, &dflt_value, &pk)
-// 		if err != nil {
-// 			return nil, err
-// 		}
+	cols, err := rows.Columns()
+	if err != nil {
+		return nil, nil, err
+	}
 
-// 		columns = append(columns, name)
-// 	}
+	var rowsData [][]string
+	colsCount := len(cols)
 
-// 	return columns, nil
-// }
+	for rows.Next() {
+		values := make([]interface{}, colsCount)
+		for i := range values {
+			values[i] = new(interface{})
+		}
+
+		err := rows.Scan(values...)
+		if err != nil {
+			return nil, nil, errors.New("error scanning row")
+		}
+
+		var row []string
+		for _, val := range values {
+			val_s := fmt.Sprintf("%v", *(val.(*interface{})))
+			row = append(row, val_s)
+		}
+		rowsData = append(rowsData, row)
+	}
+
+	if err := rows.Err(); err != nil {
+		fmt.Fprintf(os.Stderr, "error while iterating rows: %v\n", err)
+		return nil, nil, err
+	}
+
+	return cols, rowsData, nil
+}
