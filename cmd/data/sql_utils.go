@@ -72,7 +72,7 @@ func runQuery(db *sql.DB, query string) ([]string, [][]string, error) {
 func runExec(db *sql.DB, query string) (int64, error) {
 	res, err := db.Exec(query)
 	if err != nil {
-		return 0, nil
+		return 0, fmt.Errorf("error running sql string")
 	}
 
 	return res.RowsAffected()
