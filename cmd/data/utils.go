@@ -100,26 +100,3 @@ func intAbs(x int) int {
 	}
 	return x
 }
-
-// func getColumns(db *sql.DB, tableName string) ([]string, error) {
-// 	rows, err := db.Query(fmt.Sprintf("PRAGMA table_info(%s);", tableName))
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	defer rows.Close()
-
-// 	var columns []string
-// 	for rows.Next() {
-// 		var cid int
-// 		var name, ctype, notnull, pk string
-// 		var dflt_value sql.NullString
-// 		err := rows.Scan(&cid, &name, &ctype, &notnull, &dflt_value, &pk)
-// 		if err != nil {
-// 			return nil, err
-// 		}
-
-// 		columns = append(columns, name)
-// 	}
-
-// 	return columns, nil
-// }

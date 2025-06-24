@@ -11,7 +11,7 @@ go run main.go data select -d data/dbfile.db -t file_log
 ## Build
 
 ```
-go build
+go build -o bin/dbcli
 ```
 
 ## Test
