@@ -10,6 +10,9 @@ func printQueryRows(columns []string, rows [][]string) {
 	for idx, row := range rows {
 		fmt.Printf("%d: %s\n", idx+1, strings.Join(row, ", "))
 	}
+	// Print columns names at the end of the input, useful when there are many rows
+	fmt.Printf("Columns: %s\n", strings.Join(columns, ", "))
+
 }
 
 func printExecResult(rowsAffected int64) {
