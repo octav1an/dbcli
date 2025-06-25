@@ -1,18 +1,22 @@
-package data
+package commands
 
 import (
 	"database/sql"
+	"dbcli/internal/config"
 	"fmt"
 	"os"
 
 	"github.com/spf13/cobra"
 )
 
-var cmdListTables = &cobra.Command{
+var CmdListTables = &cobra.Command{
 	Use:   "list",
 	Short: "List all the tables names in the db",
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		return ValidateDb(config.DBPath)
+	},
 	Run: func(cmd *cobra.Command, args []string) {
-		db, err := sql.Open("sqlite3", dbPath)
+		db, err := sql.Open("sqlite3", config.DBPath)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "error opening database: %v\n", err)
 			return
@@ -40,8 +44,4 @@ var cmdListTables = &cobra.Command{
 			return
 		}
 	},
-}
-
-func init() {
-	CmdData.AddCommand(cmdListTables)
 }

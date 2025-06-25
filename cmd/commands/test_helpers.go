@@ -1,4 +1,4 @@
-package data
+package commands
 
 func intPtr(i int) *int {
 	return &i

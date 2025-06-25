@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"dbcli/cmd/admin"
-	"dbcli/cmd/data"
+	"dbcli/cmd/commands"
 	"dbcli/internal/config"
 	"fmt"
 	"os"
@@ -12,8 +12,12 @@ import (
 
 func init() {
 	rootCmd.PersistentFlags().BoolVarP(&config.Verbose, "verbose", "v", false, "Verbose logs")
-	rootCmd.AddCommand(data.CmdData)
+	rootCmd.PersistentFlags().StringVarP(&config.DBPath, "db", "d", "", "Path to SQLite DB file")
+
 	rootCmd.AddCommand(admin.CmdAdmin)
+	rootCmd.AddCommand(commands.CmdSql)
+	rootCmd.AddCommand(commands.CmdListTables)
+	rootCmd.AddCommand(commands.CmdSelect)
 }
 
 var rootCmd = &cobra.Command{Use: "dbcli"}
