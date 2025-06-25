@@ -1,9 +1,9 @@
-package data
+package commands
 
 import (
 	"database/sql"
+	"dbcli/internal/config"
 	"fmt"
-	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -13,45 +13,44 @@ var columnName string
 var selectRange string
 
 func init() {
-	cmdSelect.PersistentFlags().StringVarP(&tableName, "table", "t", "", "Table name")
-	cmdSelect.MarkPersistentFlagRequired("table")
-	cmdSelect.Flags().StringVarP(&columnName, "column", "c", "",
+	CmdSelect.PersistentFlags().StringVarP(&tableName, "table", "t", "", "Table name")
+	CmdSelect.MarkPersistentFlagRequired("table")
+	CmdSelect.Flags().StringVarP(&columnName, "column", "c", "",
 		`Column name(s) to select (comma-separated for multiple). Examples:
   --column file
   --column "file,time"`)
-	cmdSelect.Flags().StringVarP(&selectRange, "range", "r", "",
+	CmdSelect.Flags().StringVarP(&selectRange, "range", "r", "",
 		`Selection range. Examples:
   --range "5:10" - Select a range from 5th to 10th
   --range ":10" - Select first 10 entries
   --range "10:" - Select a range from 10th to the last
   --range ":-10" - Select last 10 entries`)
 
-	cmdSelect.PreRunE = func(cmd *cobra.Command, args []string) error {
+	CmdSelect.PreRunE = func(cmd *cobra.Command, args []string) error {
+		if err := ValidateDb(config.DBPath); err != nil {
+			return fmt.Errorf("invalid database: %w", err)
+		}
 		if err := validateColumnInput(columnName); err != nil {
-			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-			os.Exit(1)
+			return fmt.Errorf("invalid column: %w", err)
 		}
 
 		if selectRange != "" { // range is optional
 			if err := validateRangeInput(selectRange); err != nil {
-				fmt.Fprintf(os.Stderr, "Error: %v\n", err)
-				os.Exit(1)
+				return fmt.Errorf("invalid range: %w", err)
 			}
 		}
 
 		return nil
 	}
-
-	CmdData.AddCommand(cmdSelect)
 }
 
-var cmdSelect = &cobra.Command{
+var CmdSelect = &cobra.Command{
 	Use:   "select",
 	Short: "Query the sql db file",
 	Run: func(cmd *cobra.Command, args []string) {
-		vlog("Database: %s", dbPath)
+		vlog("Database: %s", config.DBPath)
 
-		db, err := sql.Open("sqlite3", dbPath)
+		db, err := sql.Open("sqlite3", config.DBPath)
 		if err != nil {
 			panic(err)
 		}

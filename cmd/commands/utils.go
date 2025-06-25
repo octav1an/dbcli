@@ -1,4 +1,4 @@
-package data
+package commands
 
 import (
 	"dbcli/internal/config"
@@ -10,7 +10,7 @@ import (
 	"strings"
 )
 
-func validateDb(path string) error {
+func ValidateDb(path string) error {
 	info, err := os.Stat(path)
 	if os.IsNotExist(err) {
 		return fmt.Errorf("database file does not exist: %s", path)

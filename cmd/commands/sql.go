@@ -1,7 +1,8 @@
-package data
+package commands
 
 import (
 	"database/sql"
+	"dbcli/internal/config"
 	"errors"
 	"fmt"
 	"os"
@@ -9,11 +10,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func init() {
-	CmdData.AddCommand(cmdSqlSelect)
-}
-
-var cmdSqlSelect = &cobra.Command{
+var CmdSql = &cobra.Command{
 	Use:   "sql",
 	Short: "Use sql query strings to interact sqlite db file",
 	Long:  "This command takes a sql query string as a positional argument and prints the result",
@@ -27,9 +24,12 @@ var cmdSqlSelect = &cobra.Command{
 		}
 		return fmt.Errorf("invalid query string %s", args[0])
 	},
+	PreRunE: func(cmd *cobra.Command, args []string) error {
+		return ValidateDb(config.DBPath)
+	},
 	Run: func(cmd *cobra.Command, args []string) {
-		vlog("Database: %s", dbPath)
-		db, err := sql.Open("sqlite3", dbPath)
+		vlog("Database: %s", config.DBPath)
+		db, err := sql.Open("sqlite3", config.DBPath)
 		if err != nil {
 			panic(err)
 		}
