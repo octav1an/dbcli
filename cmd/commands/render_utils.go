@@ -10,7 +10,7 @@ import (
 
 func printQueryRows(columns []string, rows [][]string) {
 	t := table.New(os.Stdout)
-	fullHeader := prependSlice(columns, "id")
+	fullHeader := prependSlice(columns, "idx")
 	t.SetHeaders(fullHeader...)
 
 	for idx, row := range rows {
