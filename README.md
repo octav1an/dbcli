@@ -39,7 +39,7 @@ go run main.go -d <dbfile> select -t <table> -r ":-10"
 ### Run Raw SQL
 
 ```bash
-go run main.go -d <dbfile> sql "SELECT \* FROM <table>;"
+go run main.go -d <dbfile> sql "SELECT * FROM <table>"
 ```
 
 ## Build
