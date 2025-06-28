@@ -45,7 +45,7 @@ go run main.go -d <dbfile> sql "SELECT * FROM <table>"
 ## Build
 
 ```
-go build -o bin/dbcli
+./scripts/build.sh
 ```
 
 ## Test
